@@ -1,0 +1,216 @@
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Happy Birthday</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta&display=swap">
+
+    <style type="text/css">
+        html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+            font-family: 'Mukta', sans-serif;
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .App {
+            overflow-y: auto;
+            box-sizing: border-box;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding-top: 0.5rem;
+            background-color: #444444;
+        }
+
+        .Table {
+            display: inline-block;
+        }
+
+        .Row {
+            text-align: left;
+            width: 300px;
+            height: 100px;
+        }
+
+        @keyframes creationAnimation {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .Cell {
+            display: inline-block;
+            text-align: center;
+            line-height: 100px;
+            width: 100px;
+            height: 100%;
+            font-size: 70px;
+            font-weight: bold;
+            animation: creationAnimation 0.8s 1;
+        }
+
+        .ControlArea {
+            margin-top: 0.5rem;
+        }
+
+        .NextButton {
+            display: none;
+            cursor: pointer;
+            border-color: transparent;
+            font-family: inherit;
+            font-size: 2rem;
+            color: #ffffff;
+            background-color: transparent;
+            animation: creationAnimation 3s 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="App">
+        <div class="Table">
+            <!--Cells will be displayed.-->
+        </div>
+        <div class="ControlArea">
+            <button class="NextButton">
+                <!--Button text.-->
+            </button>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function getAllElements(className) {
+            return document.getElementsByClassName(className);
+        }
+
+        function getElement(className) {
+            return getAllElements(className)[0];
+        }
+
+        function createCells(Table, text, dimX, dimY, dTime, firstColor, lastColor) {
+            Table.innerHTML = '';
+
+            const cellCount = dimX * dimY;
+
+            const dColor = {
+                r: (lastColor.r - firstColor.r) / cellCount,
+                g: (lastColor.g - firstColor.g) / cellCount,
+                b: (lastColor.b - firstColor.b) / cellCount
+            };
+
+            for (let y = 0; y < dimY; y++) {
+                const Row = document.createElement('div');
+                Row.className = 'Row';
+
+                for (let x = 0; x < dimX; x++) {
+                    const cellIndex = dimX * y + x;
+
+                    const cellColor = {
+                        r: firstColor.r + dColor.r * cellIndex,
+                        g: firstColor.g + dColor.g * cellIndex,
+                        b: firstColor.b + dColor.b * cellIndex
+                    };
+
+                    const Cell = document.createElement('div');
+                    Cell.className = 'Cell';
+                    Cell.style.backgroundColor = `rgb(${cellColor.r}, ${cellColor.g}, ${cellColor.b})`;
+                    Cell.innerHTML = (cellIndex < text.length) ? text[cellIndex] : '&nbsp;';
+
+                    setTimeout(() => {
+                        Row.appendChild(Cell);
+                    }, dTime * cellIndex);
+                }
+
+                Table.appendChild(Row);
+            }
+        }
+
+        const dTime = 150;
+        const dimX = 3;
+        const dimY = 5;
+        const Table = getElement('Table');
+        const NextButton = getElement('NextButton');
+        const animations = [];
+
+        NextButton.addEventListener('click', () => {
+            if (nextAnimation !== null) {
+                nextAnimation();
+            }
+        });
+
+        function createAnimation(
+            text,       // Text to display. (String or array of strings)
+            dimY,       // Number of the rows.
+            firstColor, // Color of the upper left cell.
+            lastColor   // Color of the lower right cell.
+        ) {
+            const index = animations.length;
+
+            animations.push(() => {
+                createCells(
+                    Table,
+                    text,
+                    dimX, dimY,
+                    dTime,
+                    firstColor, lastColor
+                );
+
+                NextButton.style.display = 'none';
+
+                setTimeout(() => {
+                    NextButton.innerHTML = (index < animations.length - 1) ? 'Click' : 'Restart';
+                    NextButton.style.display = 'inline-block';
+                    nextAnimation = animations[(index + 1) % animations.length];
+                }, dTime * dimX * dimY);
+            });
+        }
+
+        // ==============================================
+        // Create your card here.
+
+        createAnimation(
+            'NiceFriend', 4,
+            { r: 230, g: 230, b: 250 }, { r: 221, g: 160, b: 221 }
+        );
+
+        createAnimation(
+            'GreatStudent', 4,
+            { r: 230, g: 230, b: 250 }, { r: 147, g: 112, b: 219 }
+        );
+
+        createAnimation(
+            'GoodResearcher', 5,
+            { r: 230, g: 230, b: 250 }, { r: 152, g: 251, b: 152 }
+        );
+
+        createAnimation(
+            [...'HappyBirthday'.split(''), ':)'], 5,
+            { r: 230, g: 230, b: 250 }, { r: 255, g: 192, b: 203 }
+        );
+
+        // ==============================================
+
+        animations[0]();
+    </script>
+</body>
+
+</html>
